@@ -10,7 +10,6 @@ WORKDIR /app
 
 # Copy your application code into the container
 COPY . /app
-COPY .env /app/.env
 
 RUN pip install --upgrade pip
 # Install any dependencies (e.g., Django, if not already in your requirements.txt)
