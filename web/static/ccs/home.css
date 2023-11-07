@@ -1,0 +1,17 @@
+.shadow-bttn{
+    box-shadow: 1px 1px 30px 5px rgba(255, 193, 7, 0.2 );
+    color: white;
+}
+
+.shadow-bttn:hover{
+    box-shadow: 1px 1px 30px 5px rgba(255, 193, 7, 0.5 );
+    color: white;
+}
+.input-q{
+    border: 2px solid rgba(255, 193, 7);
+    border-radius: 2px;
+}
+.input-q:focus {
+    border: 2px solid rgba(255, 193, 7);
+    box-shadow: 1px 1px 30px 5px rgba(255, 193, 7, 0.5 );
+}

@@ -19,6 +19,7 @@ async def main():
         return found_keywords
 
     chats = await telegram_client.get_dialogs()
+
     for chat in chats:
         if chat.title == "Avatarex Dev":
             messages = await telegram_client.get_messages(entity=chat, limit=100)
