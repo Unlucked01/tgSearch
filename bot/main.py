@@ -5,14 +5,13 @@ import asyncio
 from telegram_client import create_telegram_client
 from aiogram_bot import bot, dp
 import os
+import re
 
 
 async def main():
     telegram_client = await create_telegram_client()
 
     keywords = ["тех задание", "зум", "задачка"]
-
-    import re
 
     def find_keywords(message):
         found_keywords = [keyword for keyword in keywords if
