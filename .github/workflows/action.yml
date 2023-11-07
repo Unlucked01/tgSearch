@@ -15,7 +15,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           whoami
-          cd tgSearchAvatarex
+          cd tgsearchavatarex
           git pull
           docker compose down
           docker compose up --build -d
