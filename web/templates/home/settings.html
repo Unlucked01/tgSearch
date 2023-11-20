@@ -1,0 +1,109 @@
+{% extends 'core/base.html' %}
+{% block title %} Настройки {% endblock title %}
+{% block content %}
+    <div class="container px-5 py-5 pb-4" style="border-bottom: solid black;">
+        <h1 class="text-dark">Настройки сервиса</h1>
+    </div>
+    <div class="container px-5  ">
+        <h5 class="mt-5 px-5 py-5 pb-4" style="border-bottom: solid black;">Ключевые слова поиска</h5>
+        <div class="row">
+            <div class="col mb-0" id="loaded-elements">
+                <div class="container rule row mb-2 " style="padding: 0px 0px 0px 20px">
+                    <div class=" col-10 d-flex align-items-center ">
+                        <input class="form-control  w-100 pr-0 " name="field-value" value="{{ v }}">
+                    </div>
+                    <div class="col-2 d-flex align-items-center" style="padding: 0px 0px">
+                        <button type="button" class="btn btn-outline-danger"
+                                onclick="deleteLoadedQualificationField(this.parentNode);">Удалить
+                        </button>
+                    </div>
+                </div>
+                <div id="added-elements"></div>
+                <button class="btn btn-warning shadow-bttn mt-2 w-100" type="button" id="plus_field"
+                        onclick="addQualificationField();">Добавить поле
+                </button>
+            </div>
+            <div class=" col mb-0" id="loaded-elements-link" style="border-left: 2px solid black;">
+                <div class="container rule row mb-2 " style="padding: 0px 0px 0px 20px ;">
+                    <div class=" col-10 d-flex align-items-center ">
+                        <input class="form-control  w-100 pr-0 " name="field-value" value="{{ v }}">
+                    </div>
+                    <div class="col-2 d-flex align-items-center" style="padding: 0px 0px">
+                        <button type="button" class="btn btn-outline-danger"
+                                onclick="deleteLinkField(this.parentNode);">Удалить
+                        </button>
+                    </div>
+                </div>
+                <div id="added-elements-link"></div>
+                <button class="btn btn-warning shadow-bttn mt-2 w-100" type="button" id="plus_field"
+                        onclick="addlinkField();">Добавить поле
+                </button>
+            </div>
+            <h3 class="h3 mt-1 pt-4" style=" border-top: 2px solid black; ">Введите ссылку чата Telegram</h3>
+            <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value" value="{{ v }}">
+            <button style="text-align: center" class="btn btn-warning shadow-bttn " type="button" id="save_changes"
+                    onclick="">
+                Сохранить
+            </button>
+        </div>
+
+
+    </div>
+    <script>
+        function addQualificationField() {
+            var container = document.getElementById("added-elements");
+
+            var newInputField = document.createElement("div");
+            newInputField.className = "";
+            newInputField.innerHTML = `<div class="container rule row mb-2 " style="padding: 0px 0px 0px 20px">
+                    <div class=" col-10 d-flex align-items-center ">
+                        <input class="form-control  w-100 pr-0 " name="field-value" value="{{ v }}">
+                    </div>
+                    <div class="col-2 d-flex align-items-center" style="padding: 0px 0px">
+                        <button type="button" class="btn btn-outline-danger"
+                                onclick="deleteLoadedQualificationField(this.parentNode);">Удалить
+                        </button>
+                    </div>
+                </div>
+
+            `;
+            container.appendChild(newInputField);
+        }
+    </script>
+    <script>
+        function addlinkField() {
+            var container = document.getElementById("added-elements-link");
+            var newInputField = document.createElement("div");
+            newInputField.className = "";
+            newInputField.innerHTML = `<div class="container rule row mb-2 " style="padding: 0px 0px 0px 20px ;">
+                    <div class=" col-10 d-flex align-items-center ">
+                        <input class="form-control  w-100 pr-0 " name="field-value" value="{{ v }}">
+                    </div>
+                    <div class="col-2 d-flex align-items-center" style="padding: 0px 0px">
+                        <button type="button" class="btn btn-outline-danger"
+                                onclick="deleteLinkField(this.parentNode);">Удалить
+                        </button>
+                    </div>
+                </div>
+
+            `;
+            container.appendChild(newInputField);
+        }
+    </script>
+    <script>
+        function deleteLoadedQualificationField(button) {
+            var rule = button.closest('.rule'); // Находим ближайший родительский элемент с классом .rule
+            if (rule) {
+                rule.remove(); // Удаляем найденный элемент
+            }
+        }
+    </script>
+    <script>
+        function deleteLinkField(button) {
+            var rule = button.closest('.rule'); // Находим ближайший родительский элемент с классом .rule
+            if (rule) {
+                rule.remove(); // Удаляем найденный элемент
+            }
+        }
+    </script>
+{% endblock %}

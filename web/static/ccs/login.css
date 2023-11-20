@@ -1,0 +1,36 @@
+.button-box{
+    width: 520px;
+    margin: 35px auto;
+    padding: 20px 20px 20px 20px ;
+    position: relative;
+    box-shadow: 0 0 50px 2px rgba(255, 193, 7, 1 );
+    border-radius: 30px ;
+    background-color: #ffffff;
+}
+.form-control {
+    border: none; /* Убираем обводку по умолчанию */
+    border-bottom: 1px solid rgba(255, 193, 7, 1 ); /* Устанавливаем обводку снизу (черный цвет) */
+    border-radius: 0; /* Убираем закругление углов */
+    padding: 10px 0; /* Подстраиваем отступы для текста */
+    background-color: #ffffff;
+}
+.form-control:focus{
+    background-color: #eaeaea;
+    border: none; /* Убираем обводку по умолчанию */
+    border-bottom: 1px solid rgba(255, 193, 7, 1 )s; /* Устанавливаем обводку снизу (черный цвет) */
+    border-radius: 0; /* Убираем закругление углов */
+    padding: 10px 0; /* Подстраиваем отступы для текста */
+}
+
+body{
+
+}
+.shadow-bttn{
+    box-shadow: 1px 1px 30px 5px rgba(255, 193, 7, 0.2 );
+    color: white;
+}
+
+.shadow-bttn:hover{
+    box-shadow: 1px 1px 30px 5px rgba(255, 193, 7, 0.5 );
+    color: white;
+}

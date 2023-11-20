@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+{% block title %} Привязать AmoCRM {% endblock title %}
+{% block content %}
+    <style>
+        .button-box {
+            width: 520px;
+            margin: 35px auto;
+            padding: 20px 20px 20px 20px;
+            position: relative;
+            border-radius: 30px;
+            box-shadow: 0 0 50px 2px rgb(105, 105, 105);
+            background-color: #ffffff;
+        }
+    </style>
+
+    <div class="container px-5 py-5 pb-4" style="border-bottom: solid black;">
+        <h1 class="text-dark">Подключение AmoCRM </h1>
+    </div>
+    <form class="button-box text-center ">
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label mb-0">Логин</label>
+            <input type="email" class="form-control pt-0" id="exampleInputEmail1" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label mb-0">Пароль</label>
+            <input type="password" class="form-control pt-0" id="exampleInputPassword1">
+        </div>
+        <div class="mb-2">
+            <button type="submit" class="btn btn-warning shadow-bttn">Войти</button>
+        </div>
+    </form>
+
+
+{% endblock %}
