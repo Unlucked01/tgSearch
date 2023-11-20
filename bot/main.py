@@ -10,8 +10,15 @@ import re
 
 async def main():
     telegram_client = await create_telegram_client()
-
-    keywords = ["тех задание", "зум", "задачка"]
+    # "тех задание", "зум", "задачка"
+    keywords = []
+    while True:
+        temp = input("Введите слова для поиска (stop для выхода): ")
+        if temp == "stop":
+            break
+        keywords.append(temp)
+    print(keywords)
+    search_title = input("Название группы для поиска: ")
 
     def find_keywords(message):
         found_keywords = [keyword for keyword in keywords if
@@ -21,7 +28,7 @@ async def main():
     chats = await telegram_client.get_dialogs()
 
     for chat in chats:
-        if chat.title == "Avatarex Dev":
+        if chat.title == search_title:
             messages = await telegram_client.get_messages(entity=chat, limit=100)
             for message in messages:
                 if message:
