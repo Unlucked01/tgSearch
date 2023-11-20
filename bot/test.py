@@ -7,6 +7,7 @@ import os
 from telethon.sync import TelegramClient
 from aiogram import Bot, Dispatcher
 import test_google_dock as tg
+from bot.amocrm import AmoConnect, execute
 
 dotenv.load_dotenv()
 
@@ -79,6 +80,7 @@ async def main():
                                             await bot_send_message(int(sheet_data['chat_id']), message_text)
                                             print("Message sended!")
                                             sent_messages.append([f"{search_title}", f"{message.id}"])
+                                            execute(message.sender.username)
 
                                     # if await check_connection():
                                     #     print("connected!")
@@ -89,7 +91,10 @@ async def main():
 
                             except Exception as e:
                                 print(f"Error processing {chat.title}: {e}")
+
         await asyncio.sleep(60)
+
+
 
 
 if __name__ == '__main__':
