@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from flask import Flask, render_template, url_for, flash, redirect, session, request, get_flashed_messages
 from misc.models import session as db_session, Users
+from web.telegram import create_telegram_client
 
 from web.utils import login_required
 
@@ -78,27 +79,38 @@ def index_amoconnect():
     return render_template("home/amoconnect.html")
 
 
-@app.route('/tgconnect', methods=['GET', 'POST'])
+@app.route('/tgconnect', methods=['GET', 'POST'], )
 @login_required
 def index_tgconnect():
     if request.method == 'GET':
-        return render_template('home/telegram.html')
+        return render_template('home/telegram.html', need_code=False)
 
-    data = request.json
+    data = request.form
+    print(data)
     api_id = data.get('api_id', None)
     api_hash = data.get('api_hash', None)
-    session_name = data.get('')
+    phone = data.get('phone_number', None)
+    secret_password = data.get('secret_password', None)
+    phone_code = data.get('phone_code', None)
+    phone_code_hash = data.get('phone_code_hash', None)
 
-    if not (api_id and api_hash):
+    if phone_code and phone_code != '':
+        create_telegram_client(api_id, api_hash, phone, phone_code, phone_code_hash, secret_password)
+        return redirect(index_tgconnect)
+
+    if not (api_id and api_hash and phone):
         flash("Не указаны все данные!", 'warning')
         return render_template('home/telegram.html')
 
+    response = create_telegram_client(api_id, api_hash, phone)
+    print(response)
+    if not response['status']:
+        phone_code_hash = response['variables']['phone_code_hash']
+        return render_template('home/telegram.html', api_id=api_id, api_hash=api_hash, phone=phone,
+                               secret_password=secret_password, phone_code_hash=phone_code_hash, need_code=True)
 
-
-
-
-    return render_template("home/telegram.html")
+    return redirect(index_tgconnect)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)

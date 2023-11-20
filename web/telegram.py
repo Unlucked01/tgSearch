@@ -18,24 +18,8 @@ dotenv.load_dotenv()
 active_clients = {}
 
 
-def phone_callback():
-    phone = input("Введите телефон: ")
-    return phone
-
-
-def password_callback():
-    password = input('Введите секретный пароль: ')
-    return password
-
-
-def code_callback():
-    code = input('Введите код доступа: ')
-    return code
-
-
-
-
 def create_telegram_client(api_id, api_hash, phone, code='', code_hash='', secret_password=''):
+    global active_clients
     session_name = str(api_id)
     if session_name in active_clients.keys():
         client = active_clients[session_name]
@@ -54,7 +38,8 @@ def create_telegram_client(api_id, api_hash, phone, code='', code_hash='', secre
             except:
                 pass
             active_clients[client] = client
-            return {'status': False, 'description': 'Please, write sms code', 'variables': {'phone_code_hash': phone_code_hash}}
+            return {'status': False, 'description': 'Please, write sms code',
+                    'variables': {'phone_code_hash': phone_code_hash}}
         try:
             client.sign_in(phone=phone, code=code, phone_code_hash=code_hash)
         except SessionPasswordNeededError as err:
@@ -70,9 +55,9 @@ api_id = 2724818
 api_hash = "6c677b0f0e2af14a53cbf0c0eafe5886"
 phone = '89870739395'
 passw = 'gelo23122003A!'
-response = create_telegram_client(api_id, api_hash, phone)
-print(response)
-if not response['status']:
-    create_telegram_client(api_id, api_hash, phone,
-                           input(response['description']),
-                           response['variables']['phone_code_hash'], passw)
+# response = create_telegram_client(api_id, api_hash, phone)
+# print(response)
+# if not response['status']:
+#     create_telegram_client(api_id, api_hash, phone,
+#                            input(response['description']),
+#                           response['variables']['phone_code_hash'], passw)
