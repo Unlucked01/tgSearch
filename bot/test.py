@@ -6,7 +6,7 @@ import os
 
 from telethon.sync import TelegramClient
 from aiogram import Bot, Dispatcher
-import bot.test_google_dock as tg
+import test_google_dock as tg
 from amocrm import AmoConnect, execute
 
 dotenv.load_dotenv()
