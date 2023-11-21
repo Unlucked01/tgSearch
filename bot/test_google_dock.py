@@ -6,7 +6,7 @@ table_name = 'Chats Saver For Vladimir'
 
 def read():
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name('../web/credentials.json', scope)
     client = gspread.authorize(creds)
     spreadsheet = client.open(table_name)
 

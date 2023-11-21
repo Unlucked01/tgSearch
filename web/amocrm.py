@@ -187,7 +187,6 @@ class AmoConnect:
         response = self.session.post(url, data=data)
         print(response)
 
-
     def auth(self) -> bool:
         self._create_session()
         response = self.session.post('https://www.amocrm.ru/oauth2/authorize', data={

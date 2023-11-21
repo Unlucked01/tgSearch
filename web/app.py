@@ -1,6 +1,8 @@
 from datetime import timedelta
 
-from flask import Flask, render_template, url_for, flash, redirect, session, request, get_flashed_messages
+from flask import Flask, render_template, url_for, flash, redirect, session, request, get_flashed_messages, jsonify
+
+from bot.amocrm import AmoConnect
 from misc.models import session as db_session, Users
 from web.telegram import create_telegram_client
 
@@ -73,10 +75,19 @@ def index_settings():
     return render_template("home/settings.html")
 
 
-@app.route('/amoconnect')
+@app.route('/amoconnect', methods=['GET', 'POST'])
 @login_required
 def index_amoconnect():
-    return render_template("home/amoconnect.html")
+    if request.method == 'GET':
+        return render_template("home/amoconnect.html")
+    data = request.form
+    login = data.get('login', None)
+    password = data.get('password', None)
+    print(login)
+    print(password)
+    if login and password != '':
+        AmoConnect(user_login=login, user_password=password)
+        return redirect(index_amoconnect)
 
 
 @app.route('/tgconnect', methods=['GET', 'POST'], )
@@ -86,7 +97,6 @@ def index_tgconnect():
         return render_template('home/telegram.html', need_code=False)
 
     data = request.form
-    print(data)
     api_id = data.get('api_id', None)
     api_hash = data.get('api_hash', None)
     phone = data.get('phone_number', None)
@@ -95,6 +105,7 @@ def index_tgconnect():
     phone_code_hash = data.get('phone_code_hash', None)
 
     if phone_code and phone_code != '':
+        flash("Вход успешен!", 'success')
         create_telegram_client(api_id, api_hash, phone, phone_code, phone_code_hash, secret_password)
         return redirect(index_tgconnect)
 
