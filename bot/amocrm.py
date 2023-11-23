@@ -4,9 +4,6 @@ import requests
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 
-login = 'realestateavatarex@gmail.com'
-password = 'wivqEd-sexno6-rejvyv'
-
 
 class AmoConnect:
     login = ''
@@ -101,7 +98,7 @@ class AmoConnect:
             'CFV[1335921][ZiMHOKbdos][DESCRIPTION]': 798709,
             'CFV[1335921][ZiMHOKbdos][VALUE]': '',
             'CFV[1335917]': '',
-            'contact[NAME]': 'Manager2',
+            'contact[NAME]': 'TgSearchManager',
             'lead[ID]': deal_id,
             'lead[PIPELINE_ID]': 'undefined',
             'lead[STATUS]': 62059562
@@ -165,7 +162,7 @@ class AmoConnect:
         driver.close()
 
 
-def execute(username):
+def execute(username, login='realestateavatarex@gmail.com', password='wivqEd-sexno6-rejvyv'):
     amo_connection = AmoConnect(login, password)
     is_connected: bool = amo_connection.auth()
     print(is_connected)

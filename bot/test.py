@@ -80,7 +80,6 @@ async def main(client):
                                             await bot_send_message(int(sheet_data['chat_id']), message_text)
                                             print("Message sended!")
                                             sent_messages.append([f"{search_title}", f"{message.id}"])
-                                            execute(message.sender.username)
                             except Exception as e:
                                 print(f"Error processing {chat.title}: {e}")
 

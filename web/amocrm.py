@@ -210,6 +210,7 @@ password = '83xUHS73'
 deal_id = 5117051
 amo_connection = AmoConnect(login, password, deal_id=deal_id, pipeline=7343546)
 is_connected: bool = amo_connection.auth()
+print(is_connected)
 fields = ['testField', 'Цвет волос', 'artemggwp']
 
 params = amo_connection.get_params_information(fields)
