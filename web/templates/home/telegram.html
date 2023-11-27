@@ -5,11 +5,11 @@
     <form id="telegramForm" action="/tgconnect" method="POST" enctype="application/json">
         <div class="container px-5 py-5 pb-4" style="border-bottom: solid black;">
             <h1 class="text-dark">Работа с Telegram</h1>
+            <h3 class="text-dark">Не забудьте написать боту: <a href="https://web.telegram.org/a/#6428179108">@requestMessageSenderBot</a></h3>
         </div>
         <div class="container px-5 ">
             <div class="py-3">
                 <h4 class="text-dark pb-3">Telegram API ID </h4>
-
                 <div class="input-group ">
                     <span class="input-group-text btn-warning text-white ">Введите APi ID</span>
                     <label style="max-width: calc(100% - 230.73px); min-width: calc(100% - 250px); height: 38px">
@@ -29,48 +29,25 @@
                 </div>
             </div>
             <div class="py-3">
-                <h4 class="text-dark pb-3"> Phone number </h4>
+                <h4 class="text-dark pb-3">Phone </h4>
                 <div class="input-group">
-                    <span class="input-group-text btn-warning text-white">Введите phone number</span>
+                    <span class="input-group-text btn-warning text-white">Введите номер телефона</span>
                     <label style="max-width: calc(100% - 230.73px); min-width: calc(100% - 250px); height: 38px">
                         <input class="input-q" style="width:100%; height: 38px" id="phone_number" name="phone_number"
-                               value="{{ phone }}">
+                               value="{{ phone_number }}">
                     </label>
                 </div>
             </div>
             <div class="py-3">
-                <h4 class="text-dark pb-3"> Secret password </h4>
+                <h4 class="text-dark pb-3">Telegram Account ID </h4>
                 <div class="input-group">
-                    <span class="input-group-text btn-warning text-white">Введите secret password</span>
+                    <span class="input-group-text btn-warning text-white">Введите ID</span>
                     <label style="max-width: calc(100% - 230.73px); min-width: calc(100% - 250px); height: 38px">
-                        <input class="input-q" style="width:100%; height: 38px" id="secret_password"
-                               name="secret_password" value="{{ secret_password }}">
+                        <input class="input-q" style="width:100%; height: 38px" id="account_id" name="account_id"
+                               value="{{ account_id }}">
                     </label>
                 </div>
             </div>
-
-            {% if need_code %}
-                <div class="py-3">
-                    <h4 class="text-dark pb-3"> Phone Hash </h4>
-                    <div class="input-group">
-                        <label style="max-width: calc(100% - 230.73px); min-width: calc(100% - 250px); height: 38px">
-                            <input class="input-q" style="width:100%; height: 38px" id="phone_code_hash"
-                                   name="phone_code_hash" value="{{ phone_code_hash }}" disabled>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="py-3">
-                    <h4 class="text-dark pb-3"> Phone code </h4>
-                    <div class="input-group">
-                        <span class="input-group-text btn-warning text-white">Введите phone code</span>
-                        <label style="max-width: calc(100% - 230.73px); min-width: calc(100% - 250px); height: 38px">
-                            <input class="input-q" style="width:100%; height: 38px" id="phone_code"
-                                   name="phone_code" value="">
-                        </label>
-                    </div>
-                </div>
-            {% endif %}
             <button type="submit" class="btn btn-warning shadow-bttn">
                 Привязать
             </button>

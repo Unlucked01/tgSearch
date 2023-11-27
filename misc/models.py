@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
@@ -25,20 +25,22 @@ class Users(Base):
     amocrm_account_id = Column(Integer, ForeignKey('amocrm_accounts.id'), nullable=True)
     amocrm_account = relationship("AmocrmAccounts", back_populates="user")
     settings = relationship("Setting", back_populates="user")
+    telegram_session_id = Column(Integer, nullable=True)
 
 
 class TelegramAccounts(Base):
     __tablename__ = "telegram_accounts"
-    id = Column(Integer, primary_key=True)
-    api_id = Column(String)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    api_id = Column(Integer)
     api_hash = Column(String)
-    session_file_path = Column(String, nullable=True)
+    phone = Column(String)
+    account_id = Column(Integer)
     user = relationship("Users", back_populates="telegram_account")
 
 
 class AmocrmAccounts(Base):
     __tablename__ = 'amocrm_accounts'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String)
     password = Column(String)
     host = Column(String)
@@ -47,7 +49,7 @@ class AmocrmAccounts(Base):
 
 class Setting(Base):
     __tablename__ = 'settings'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     group = Column(String)
     key = Column(String)
     chat_id = Column(String)
@@ -55,12 +57,12 @@ class Setting(Base):
     user = relationship("Users", back_populates="settings", foreign_keys="Setting.user_id")
 
 
-def add_telegram(login, api_id, api_hash):
+def add_telegram(login, api_id, api_hash, phone, account_id):
     print(login)
     account = dbSession.query(Users).filter_by(email=login).first()
     if account:
         print(account.id)
-        telegram_account = TelegramAccounts(api_id=api_id, api_hash=api_hash, session_file_path=f"./{api_id}.session")
+        telegram_account = TelegramAccounts(api_id=api_id, api_hash=api_hash, phone=phone, account_id=account_id)
         account.telegram_account = telegram_account
         dbSession.add(telegram_account)
         dbSession.commit()
@@ -92,6 +94,20 @@ def add_settings(login, groups, keys, chat_id):
             dbSession.add(settings)
         dbSession.commit()
         print("Settings added successfully.")
+    else:
+        print("User not found.")
+
+
+def add_session_id(login, session_id):
+    print(login)
+    print(session_id)
+    account = dbSession.query(Users).filter_by(email=login).first()
+    if account:
+        account.telegram_session_id = session_id
+        dbSession.commit()
+        # file = Upload(filename=_file.filename, data=_file.read())
+        # dbSession.add(file)
+        # dbSession.commit()
     else:
         print("User not found.")
 

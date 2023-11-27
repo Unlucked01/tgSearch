@@ -4,8 +4,9 @@
     <div class="container px-5 py-5 pb-4" style="border-bottom: solid black;">
         <h1 class="text-dark">Настройки сервиса</h1>
     </div>
-    <form action="/settings" method="POST">
+    <form action="/settings" method="POST" enctype="multipart/form-data">
     <div class="container px-5">
+
         <h5 class="mt-5 px-5 py-5 pb-4" style="border-bottom: solid black;">Ключевые слова поиска</h5>
         <div class="row">
             <div class="col mb-0" id="loaded-elements">
@@ -51,6 +52,8 @@
 
         <h3 class="h3 mt-1 pt-4" style=" border-top: 2px solid black; ">Введите ссылку чата Telegram</h3>
         <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value-telegram" value="{{ v }}">
+        <h3 class="h3 mt-1 pt-4" style=" border-top: 2px solid black; ">Загрузите файл</h3>
+        <input type="file" name="session_file" accept=".session">
         <button style="text-align: center" class="btn btn-warning shadow-bttn" type="submit" name="save_changes" id="save_changes">
             Сохранить
         </button>

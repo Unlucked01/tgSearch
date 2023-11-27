@@ -1,26 +1,37 @@
 import asyncio
+import os
 from datetime import timedelta
 from flask_socketio import SocketIO
 
-from celery import Celery
-from flask import Flask, render_template, url_for, flash, redirect, session, request, get_flashed_messages, jsonify
-from sqlalchemy.exc import NoResultFound
+from flask import Flask, render_template, url_for, flash, redirect, session, request, send_file, get_flashed_messages, \
+    jsonify
 from sqlalchemy.testing.pickleable import User
 
+from tg_converter import TelegramSession
+import io
+
 from bot.amocrm import AmoConnect
-from misc.models import dbSession as db_session, Users, TelegramAccounts, AmocrmAccounts, Setting, Session, \
-    add_telegram, add_amo, add_settings
+from misc.models import dbSession as db_session, Users, TelegramAccounts, AmocrmAccounts, Setting, Session,  \
+    add_telegram, add_amo, add_settings, add_session_id
 from web.telegram import create_telegram_client, run_bot
 
 from web.utils import login_required
 
 app = Flask(__name__)
 
+UPLOAD_FOLDER = '/sessions'
+ALLOWED_EXTENSIONS = {'session'}
+
 app.secret_key = ["FLASK_SECRET_KEY"]
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 МБ в байтах
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 dbSession = Session()
 socketio = SocketIO(app)
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.errorhandler(404)
@@ -52,7 +63,7 @@ def index_register():
         session["authenticated"] = True
         session['login'] = login
         flash("Спасибо за регистрацию!", 'success')
-        return redirect("home/telegram.html")
+        return redirect(index_tgconnect)
     return render_template("home/register.html")
 
 
@@ -84,14 +95,22 @@ def index_login():
 @login_required
 def index_settings():
     login = session["login"]
+    print(login)
     if request.method == 'GET':
         return render_template("home/settings.html")
     data = request.form
     groups = data.getlist('field-value-left')
     keys = data.getlist('field-value-right')
     chat_id = data.get('field-value-telegram')
+
     if 'save_changes' in data:
         add_settings(login, groups=groups, keys=keys, chat_id=chat_id)
+        file = request.files.get('session_file')
+        if file and allowed_file(file.filename):
+            print(login)
+            file.save(os.path.join(os.path.dirname(__file__), "../sessions/", file.filename))
+            add_session_id(login, file.filename.split('.')[0])
+        print(f"uploaded: {file.filename}")
     elif 'execute_code' in data:
         asyncio.run(run_bot(login))
     return render_template("home/settings.html")
@@ -125,8 +144,7 @@ def index_amoconnect():
 @app.route('/tgconnect', methods=['GET', 'POST'], )
 @login_required
 def index_tgconnect():
-    login = session["login"]
-
+    login = session['login']
     if request.method == 'GET':
         return render_template('home/telegram.html', need_code=False)
 
@@ -134,34 +152,21 @@ def index_tgconnect():
     api_id = data.get('api_id', None)
     api_hash = data.get('api_hash', None)
     phone = data.get('phone_number', None)
-    secret_password = data.get('secret_password', None)
-    phone_code = data.get('phone_code', None)
-    phone_code_hash = data.get('phone_code_hash', None)
+    account_id = data.get('account_id', None)
 
     tg_user: User = dbSession.query(TelegramAccounts).filter(TelegramAccounts.api_id == api_id,
-                                                              TelegramAccounts.api_hash == api_hash).first()
-
+                                                             TelegramAccounts.api_hash == api_hash).first()
     if tg_user is not None:
         flash("Пользователь существует!", 'warning')
         return redirect(request.path)
 
-    if phone_code and phone_code != '':
-        flash("Вход успешен!", 'success')
-        asyncio.run(create_telegram_client(api_id, api_hash, phone, phone_code, phone_code_hash, secret_password))
-        add_telegram(login, api_id, api_hash)
-        return redirect(index_amoconnect)
-
-    if not (api_id and api_hash and phone):
+    if not (api_id and api_hash):
         flash("Не указаны все данные!", 'warning')
         return render_template('home/telegram.html')
 
-    response = asyncio.run(create_telegram_client(api_id, api_hash, phone))
-    if not response['status']:
-        phone_code_hash = response['variables']['phone_code_hash']
-        return render_template('home/telegram.html', api_id=api_id, api_hash=api_hash, phone=phone,
-                               secret_password=secret_password, phone_code_hash=phone_code_hash, need_code=True)
-
+    add_telegram(login, api_id, api_hash, phone, account_id)
     return redirect(index_tgconnect)
+
 
 # @app.route('/tgconnect', methods=['GET', 'POST'], )
 # @login_required

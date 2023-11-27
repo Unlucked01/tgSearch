@@ -16,14 +16,15 @@
     <div class="container px-5 py-5 pb-4" style="border-bottom: solid black;">
         <h1 class="text-dark">Подключение AmoCRM </h1>
     </div>
-    <form class="button-box text-center ">
+    <form action="/amoconnect" method="POST" class="button-box text-center">
         <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label mb-0">Логин</label>
-            <input type="email" class="form-control pt-0" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <label for="login" class="form-label mb-0">Логин</label>
+            <input type="text" class="form-control pt-0" id="login" name="login" aria-describedby="emailHelp"
+                   value="{{ login }}">
         </div>
         <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label mb-0">Пароль</label>
-            <input type="password" class="form-control pt-0" id="exampleInputPassword1">
+            <label for="password" class="form-label mb-0">Пароль</label>
+            <input type="password" class="form-control pt-0" id="password" name="password" value="{{ password }}">
         </div>
         <div class="mb-2">
             <button type="submit" class="btn btn-warning shadow-bttn">Войти</button>
