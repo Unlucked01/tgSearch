@@ -34,7 +34,7 @@ class TelegramAccounts(Base):
     api_id = Column(Integer)
     api_hash = Column(String)
     phone = Column(String)
-    account_id = Column(Integer)
+    account_id = Column(String)
     user = relationship("Users", back_populates="telegram_account")
 
 

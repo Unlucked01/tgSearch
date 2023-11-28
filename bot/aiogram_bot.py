@@ -15,10 +15,14 @@ BOT_TOKEN = os.getenv('BOT_TOKEN_REQ')
 TARGET_USER_ID = 735406398
 
 # URL для получения обновлений (новых сообщений) от бота
-UPDATES_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/getUpdates'
+UPDATES_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/getUpdates?offset=-1'
 
 # URL для отправки сообщения
 SEND_MESSAGE_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
+
+phone: str
+api_id: int
+api_hash: int
 
 
 def get_updates(offset=None):
@@ -28,15 +32,14 @@ def get_updates(offset=None):
 
 
 def get_message(user_id):
-    # Forming request parameters for getting user messages
     params = {'chat_id': user_id, 'limit': 1}
     response = requests.get(UPDATES_URL, params=params)
     messages = response.json().get('result', [])
-    print(messages)
     if messages:
-        return messages[0]['message']
-    else:
-        return None
+        last_message = messages[-1].get('message')
+        if last_message:
+            return last_message.get('text')
+    return None
 
 
 def send_message(chat_id, text):
@@ -45,14 +48,20 @@ def send_message(chat_id, text):
     return response.json()
 
 
-def main():
-    offset = None
+def message_send(t_id):
+    send_message(t_id, "Введите код доступа: ")
 
+
+def main():
+    global TARGET_USER_ID
+    offset = None
+    message_send(TARGET_USER_ID)
     while True:
         updates = get_updates(offset)
         for update in updates.get('result', []):
             message = update.get('message')
             if message:
+                TARGET_USER_ID = message['from']['id']
                 chat_id = message['chat']['id']
                 text = message.get('text', 'No text')
                 send_message(chat_id, f'You said: {text}')
@@ -61,5 +70,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    send_message(TARGET_USER_ID, "privet")
+    main()

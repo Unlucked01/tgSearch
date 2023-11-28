@@ -97,6 +97,7 @@ def index_settings():
     login = session["login"]
     print(login)
     if request.method == 'GET':
+
         return render_template("home/settings.html")
     data = request.form
     groups = data.getlist('field-value-left')
