@@ -1,7 +1,6 @@
 import asyncio
 import os
 from datetime import timedelta
-from flask_socketio import SocketIO
 
 from flask import Flask, render_template, url_for, flash, redirect, session, request, send_file, get_flashed_messages, \
     jsonify
@@ -25,7 +24,6 @@ app.secret_key = ["FLASK_SECRET_KEY"]
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 МБ в байтах
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-socketio = SocketIO(app)
 
 
 def allowed_file(filename):

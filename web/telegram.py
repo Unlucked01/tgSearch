@@ -16,8 +16,8 @@ from misc.models import Users, dbSession as db_session
 
 dotenv.load_dotenv()
 active_clients = {}
-Bot = Bot(os.getenv('BOT_TOKEN'))
-dp = Dispatcher()
+bot = Bot(os.getenv('BOT_TOKEN'))
+dp = Dispatcher(Bot)
 
 BOT_TOKEN = os.getenv('BOT_TOKEN_REQ')
 
