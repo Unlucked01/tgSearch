@@ -7,7 +7,7 @@
     <form action="/settings" method="POST" enctype="multipart/form-data">
     <div class="container px-5">
 
-        <h5 class="mt-5 px-5 py-5 pb-4" style="border-bottom: solid black;">Ключевые слова поиска</h5>
+        <h5 class="mt-5 px-5 py-5 pb-4" style="border-bottom: solid black;">Левая колонка группы для поиска, правая ключевые слова</h5>
         <div class="row">
             <div class="col mb-0" id="loaded-elements">
                 {% for setting in settings %}
@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <h3 class="h3 mt-1 pt-4" style=" border-top: 2px solid black; ">Введите ссылку чата Telegram</h3>
+        <h3 class="h3 mt-1 pt-4" style=" border-top: 2px solid black; ">Введите id чата Telegram</h3>
         <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value-telegram" value="{{ v }}">
         <button style="text-align: center" class="btn btn-warning shadow-bttn" type="submit" name="save_changes" id="save_changes">
             Сохранить
