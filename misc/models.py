@@ -112,6 +112,6 @@ def add_session_id(login, session_id):
         print("User not found.")
 
 
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-dbSession = Session()
+# Base.metadata.create_all(engine)
+# Session = sessionmaker(bind=engine)
+# dbSession = Session()

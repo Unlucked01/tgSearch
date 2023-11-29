@@ -14,13 +14,12 @@ from aiogram import Bot, Dispatcher
 import bot.test_google_dock as tg
 from bot.aiogram_bot import send_message, get_message
 from bot.session_bot_creator import bot
-from misc.models import dbSession as db_session, TelegramAccounts, Users
-
+from misc.models import TelegramAccounts, Users
 from bot.amocrm import execute
 
 dotenv.load_dotenv()
 active_clients = {}
-Bot = Bot(token=os.getenv('BOT_TOKEN'))
+Bot = Bot(os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
 
 BOT_TOKEN = os.getenv('BOT_TOKEN_REQ')

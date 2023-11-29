@@ -7,7 +7,6 @@ from flask import Flask, render_template, url_for, flash, redirect, session, req
     jsonify
 from sqlalchemy.testing.pickleable import User
 
-from tg_converter import TelegramSession
 import io
 
 from bot.amocrm import AmoConnect
