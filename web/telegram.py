@@ -72,7 +72,7 @@ async def exec(client, all_data):
             for account_id, settings in all_data.items():
                 for chat in chats:
                     for search_title in settings['groups']:
-                        if findWholeWord(search_title, chat.title):
+                        if chat.title.replace(" ", "_").lower().strip() == search_title.replace(" ", "_").lower().strip():
                             messages = await client.get_messages(entity=chat, limit=100)
                             for message in messages:
                                 try:
@@ -88,13 +88,14 @@ async def exec(client, all_data):
                                                 id = settings['chat_id']
                                                 if id[0] != '-':
                                                     id = '-' + id
-                                                await Bot.send_message(chat_id=int(id),
+                                                await bot.send_message(chat_id=int(id),
                                                                        text=message_text, parse_mode='HTML')
                                                 print("Message sended!")
                                                 sent_messages.append([f"{search_title}", f"{message.id}"])
                                                 # execute(username=message.sender.username)
                                 except Exception as e:
-                                    print(f"Error processing {chat.title}: {e}")
+                                    pass
+                                    # print(f"Error processing {chat.title}: {e}")
 
             await asyncio.sleep(60)
     else:
