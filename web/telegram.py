@@ -2,6 +2,7 @@ import os
 import random
 import threading
 
+import requests
 from telethon import errors
 from telethon.errors import SessionPasswordNeededError
 from telethon.sessions import MemorySession
@@ -23,6 +24,8 @@ BOT_TOKEN = os.getenv('BOT_TOKEN_REQ')
 
 UPDATES_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/getUpdates'
 SEND_MESSAGE_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
+
+apiURL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
 
 
 async def create_telegram_client(api_id, api_hash, phone, code='', code_hash='', secret_password=''):
@@ -85,11 +88,15 @@ async def exec(client, all_data):
                                             message_text += f"Ключ: {word}\n"
                                             message_text += f"<a href='https://t.me/c/{message.peer_id.channel_id}/{message.id}'>Оригинал сообщения</a>"
                                             if not ([f"{search_title}", f"{message.id}"] in sent_messages):
-                                                id = settings['chat_id']
-                                                if id[0] != '-':
-                                                    id = '-' + id
-                                                await bot.send_message(chat_id=int(id),
+                                                chat_id = str(settings['chat_id'])
+                                                if chat_id[0] != '-':
+                                                    chat_id = '-100' + chat_id
+                                                else:
+                                                    chat_id = '-100' + chat_id[1:]
+                                                print(chat_id)
+                                                await bot.send_message(chat_id=int(chat_id),
                                                                        text=message_text, parse_mode='HTML')
+
                                                 print("Message sended!")
                                                 sent_messages.append([f"{search_title}", f"{message.id}"])
                                                 # execute(username=message.sender.username)
@@ -136,6 +143,7 @@ async def run_bot(login):
         code = get_message(account.telegram_account.account_id).replace(".", '')
         print(code)
         if code:
+            print("sign-in")
             try:
                 await client.sign_in(phone=account.telegram_account.phone, code=code)
             except SessionPasswordNeededError:

@@ -144,11 +144,11 @@ def index_tgconnect():
     phone = data.get('phone_number', None)
     account_id = data.get('account_id', None)
 
-    tg_user: User = db_session.query(TelegramAccounts).filter(TelegramAccounts.api_id == api_id,
-                                                             TelegramAccounts.api_hash == api_hash).first()
-    if tg_user is not None:
-        flash("Пользователь существует!", 'warning')
-        return redirect(request.path)
+    # tg_user: User = db_session.query(TelegramAccounts).filter(TelegramAccounts.api_id == api_id,
+    #                                                          TelegramAccounts.api_hash == api_hash).first()
+    # if tg_user is not None:
+    #     flash("Пользователь существует!", 'warning')
+    #     return redirect(request.path)
 
     if not (api_id and api_hash):
         flash("Не указаны все данные!", 'warning')
