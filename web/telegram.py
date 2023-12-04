@@ -100,14 +100,16 @@ async def exec(client, all_data):
             for account_id, settings in all_data.items():
                 for chat in chats:
                     for search_title in settings['groups']:
-                        if (remove_emojis(chat.title.replace(" ", "_").lower().strip()) ==
-                                remove_emojis(search_title.replace(" ", "_").lower().strip())):
+                        curr_search_title = remove_emojis(search_title.lower().strip())
+                        curr_chat_title = remove_emojis(chat.title.lower().strip())
+                        if curr_search_title == curr_chat_title:
                             messages = await client.get_messages(entity=chat, limit=100)
                             print("messages ok")
                             for message in messages:
                                 try:
                                     for word in settings['keywords']:
                                         found_keyword = findWholeWord(word, message.message)
+                                        print(found_keyword)
                                         if found_keyword:
                                             message_text = f"{message.text}\n\n"
                                             message_text += f"Пользователь: <a href='https://t.me/@{message.sender.username}'>{message.sender.username}</a>\nГруппа:"
