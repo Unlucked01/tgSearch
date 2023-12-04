@@ -60,7 +60,31 @@ async def create_telegram_client(api_id, api_hash, phone, code='', code_hash='',
     return {'status': True, 'description': ''}
 
 
+def remove_emojis(data):
+    emoj = re.compile("["
+                      u"\U0001F600-\U0001F64F"  # emoticons
+                      u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                      u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                      u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                      u"\U00002500-\U00002BEF"  # chinese char
+                      u"\U00002702-\U000027B0"
+                      u"\U000024C2-\U0001F251"
+                      u"\U0001f926-\U0001f937"
+                      u"\U00010000-\U0010ffff"
+                      u"\u2640-\u2642"
+                      u"\u2600-\u2B55"
+                      u"\u200d"
+                      u"\u23cf"
+                      u"\u23e9"
+                      u"\u231a"
+                      u"\ufe0f"  # dingbats
+                      u"\u3030"
+                      "]+", re.UNICODE)
+    return re.sub(emoj, '', data)
+
+
 async def exec(client, all_data):
+    print("exec")
     if client is not None:
         sent_messages = []
 
@@ -72,11 +96,14 @@ async def exec(client, all_data):
 
         while True:
             chats = await client.get_dialogs()
+            print("chats ok")
             for account_id, settings in all_data.items():
                 for chat in chats:
                     for search_title in settings['groups']:
-                        if chat.title.replace(" ", "_").lower().strip() == search_title.replace(" ", "_").lower().strip():
+                        if (remove_emojis(chat.title.replace(" ", "_").lower().strip()) ==
+                                remove_emojis(search_title.replace(" ", "_").lower().strip())):
                             messages = await client.get_messages(entity=chat, limit=100)
+                            print("messages ok")
                             for message in messages:
                                 try:
                                     for word in settings['keywords']:
@@ -88,6 +115,7 @@ async def exec(client, all_data):
                                             message_text += f"Ключ: {word}\n"
                                             message_text += f"<a href='https://t.me/c/{message.peer_id.channel_id}/{message.id}'>Оригинал сообщения</a>"
                                             if not ([f"{search_title}", f"{message.id}"] in sent_messages):
+                                                print(message_text)
                                                 chat_id = str(settings['chat_id'])
                                                 if chat_id[0] != '-':
                                                     chat_id = '-100' + chat_id
@@ -101,8 +129,7 @@ async def exec(client, all_data):
                                                 sent_messages.append([f"{search_title}", f"{message.id}"])
                                                 # execute(username=message.sender.username)
                                 except Exception as e:
-                                    pass
-                                    # print(f"Error processing {chat.title}: {e}")
+                                    print(f"Error processing {chat.title}: {e}")
 
             await asyncio.sleep(60)
     else:
@@ -159,4 +186,3 @@ async def run_bot(login):
         await client.connect()
         await exec(client, all_data)
     return
-
