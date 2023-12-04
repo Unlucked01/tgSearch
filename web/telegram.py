@@ -57,10 +57,6 @@ def remove_emojis(data):
     return re.sub(emoj, '', data)
 
 
-def delete_session_fournaled_file(file_name):
-    os.remove(file_name) if os.path.exists(file_name) else None
-
-
 async def exec(client, all_data):
     if client:
         sent_messages = []
@@ -146,9 +142,12 @@ async def run_bot(login):
     else:
         print("User not found.")
 
-    client = TelegramClient(session=f'{account.telegram_account.api_id}.session',
-                            api_id=account.telegram_account.api_id,
-                            api_hash=account.telegram_account.api_hash)
+    try:
+        client = TelegramClient(session=f'{account.telegram_account.api_id}.session',
+                                api_id=account.telegram_account.api_id,
+                                api_hash=account.telegram_account.api_hash)
+    except:
+        raise Exception("Нет телеграм клиента!")
 
     string = StringSession.save(client.session)
     try:

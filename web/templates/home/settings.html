@@ -58,10 +58,14 @@
             {% for setting in settings %}
                 <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value-telegram" value="{{ setting.chat_id }}">
             {% endfor %}
+            <div id="added-telegram-id"></div>
+            <button style="text-align: center; margin-bottom: 10px;" class="btn btn-warning shadow-bttn mt-2 w-100" type="button" id="plus_field"
+                            onclick="addTelegramId();">Добавить поле
+            </button>
             <button style="text-align: center" class="btn btn-warning shadow-bttn" type="submit" name="save_changes" id="save_changes">
                 Сохранить
             </button>
-            <button style="text-align: right" class="btn btn-warning shadow-bttn" type="submit" name="execute_code" id="execute_code">
+            <button style="text-align: right" class="btn btn-warning shadow-bttn {% if show_execute_code_button %} {% else %} hidden {% endif %}" type="submit" name="execute_code" id="execute_code">
                 Запустить бота
             </button>
         </div>
@@ -108,6 +112,19 @@
             container.appendChild(newInputField);
         }
     </script>
+
+    <script>
+        function addTelegramId() {
+            var container = document.getElementById("added-telegram-id");
+            var newInputField = document.createElement("div");
+            newInputField.className = "";
+            newInputField.innerHTML = `
+            <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value-telegram" value="{{ v }}">
+            `;
+            container.appendChild(newInputField);
+        }
+    </script>
+
     <script>
         function deleteLoadedQualificationField(button) {
             var rule = button.closest('.rule'); // Находим ближайший родительский элемент с классом .rule

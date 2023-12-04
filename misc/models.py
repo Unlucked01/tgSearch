@@ -92,17 +92,10 @@ def add_settings(login, groups, keys, chat_id):
         delete_settings_for_user(dbSession, account.id)
         group_value = ', '.join(groups)
         key_value = ', '.join(keys)
-
         if group_value or key_value:
             settings = Setting(group=group_value, key=key_value, chat_id=chat_id, user=account)
             dbSession.add(settings)
-
         dbSession.commit()
-        # for group, key in zip(groups, keys):
-        #     if group or key:
-        #         settings = Setting(group=group, key=key, chat_id=chat_id, user=account)
-        #         dbSession.add(settings)
-        # dbSession.commit()
         print("Settings added successfully.")
     else:
         print("User not found.")
