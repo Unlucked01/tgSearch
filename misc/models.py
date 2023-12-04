@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.orm import relationship
 import dotenv
 
@@ -89,27 +89,34 @@ def add_settings(login, groups, keys, chat_id):
     account = dbSession.query(Users).filter_by(email=login).first()
     if account:
         print(account.id)
-        for group, key in zip(groups, keys):
-            settings = Setting(group=group, key=key, chat_id=chat_id, user=account)
+        delete_settings_for_user(dbSession, account.id)
+        group_value = ', '.join(groups)
+        key_value = ', '.join(keys)
+
+        if group_value or key_value:
+            settings = Setting(group=group_value, key=key_value, chat_id=chat_id, user=account)
             dbSession.add(settings)
+
         dbSession.commit()
+        # for group, key in zip(groups, keys):
+        #     if group or key:
+        #         settings = Setting(group=group, key=key, chat_id=chat_id, user=account)
+        #         dbSession.add(settings)
+        # dbSession.commit()
         print("Settings added successfully.")
     else:
         print("User not found.")
 
 
-def add_session_id(login, session_id):
-    print(login)
-    print(session_id)
-    account = dbSession.query(Users).filter_by(email=login).first()
-    if account:
-        account.telegram_session_id = session_id
-        dbSession.commit()
-        # file = Upload(filename=_file.filename, data=_file.read())
-        # dbSession.add(file)
-        # dbSession.commit()
+def delete_settings_for_user(session: Session, user_id: int):
+    user = session.query(Users).get(user_id)
+
+    if user:
+        session.query(Setting).filter_by(user_id=user.id).delete()
+        session.commit()
+        print(f"Settings for user with id {user_id} deleted successfully.")
     else:
-        print("User not found.")
+        print(f"User with id {user_id} not found.")
 
 
 Base.metadata.create_all(engine)

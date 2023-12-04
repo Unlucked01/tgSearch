@@ -10,7 +10,7 @@ import io
 
 from bot.amocrm import AmoConnect
 from misc.models import dbSession as db_session, Users, TelegramAccounts, AmocrmAccounts, Setting, Session,  \
-    add_telegram, add_amo, add_settings, add_session_id
+    add_telegram, add_amo, add_settings
 from web.telegram import create_telegram_client, run_bot
 
 from web.utils import login_required
@@ -91,19 +91,18 @@ def index_login():
 @login_required
 def index_settings():
     login = session["login"]
-    print(login)
-    if request.method == 'GET':
-        return render_template("home/settings.html")
-    data = request.form
-    groups = data.getlist('field-value-left')
-    keys = data.getlist('field-value-right')
-    chat_id = data.get('field-value-telegram')
-
-    if 'save_changes' in data:
-        add_settings(login, groups=groups, keys=keys, chat_id=chat_id)
-    elif 'execute_code' in data:
-        asyncio.run(run_bot(login))
-    return render_template("home/settings.html")
+    account = db_session.query(Users).filter_by(email=login).first()
+    if request.method == 'POST':
+        data = request.form
+        groups = data.getlist('field-value-left')
+        keys = data.getlist('field-value-right')
+        chat_id = data.get('field-value-telegram')
+        if 'save_changes' in data:
+            add_settings(login, groups=groups, keys=keys, chat_id=chat_id)
+            flash("Сохранение произошло успешно", 'success')
+        elif 'execute_code' in data:
+            asyncio.run(run_bot(login))
+    return render_template("home/settings.html", settings=account.settings)
 
 
 @app.route('/amoconnect', methods=['GET', 'POST'])
@@ -136,6 +135,9 @@ def index_amoconnect():
 def index_tgconnect():
     login = session['login']
     if request.method == 'GET':
+        account = db_session.query(Users).filter_by(email=login).first()
+        if account.telegram_account_id is not None:
+            flash("Пользователь уже привязан", 'success')
         return render_template('home/telegram.html', need_code=False)
 
     data = request.form
@@ -144,18 +146,12 @@ def index_tgconnect():
     phone = data.get('phone_number', None)
     account_id = data.get('account_id', None)
 
-    # tg_user: User = db_session.query(TelegramAccounts).filter(TelegramAccounts.api_id == api_id,
-    #                                                          TelegramAccounts.api_hash == api_hash).first()
-    # if tg_user is not None:
-    #     flash("Пользователь существует!", 'warning')
-    #     return redirect(request.path)
-
     if not (api_id and api_hash):
         flash("Не указаны все данные!", 'warning')
         return render_template('home/telegram.html')
 
     add_telegram(login, api_id, api_hash, phone, account_id)
-    return redirect(index_tgconnect)
+    return redirect(index_settings)
 
 
 if __name__ == '__main__':

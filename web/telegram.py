@@ -1,12 +1,15 @@
 import os
 import random
+import sys
 import threading
+from subprocess import check_output
 
 import requests
+from flask import flash
+from sqlalchemy.exc import OperationalError
 from telethon import errors
 from telethon.errors import SessionPasswordNeededError
-from telethon.sessions import MemorySession
-from telethon.sync import TelegramClient
+from telethon.sessions import MemorySession, StringSession
 import dotenv
 import dataclasses
 import asyncio
@@ -14,11 +17,13 @@ import re
 from aiogram import Bot, Dispatcher
 from bot.aiogram_bot import send_message, get_message
 from misc.models import Users, dbSession as db_session
+from telethon.sync import TelegramClient
 
 dotenv.load_dotenv()
 active_clients = {}
 bot = Bot(os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
+os.chdir(sys.path[0])
 
 BOT_TOKEN = os.getenv('BOT_TOKEN_REQ')
 
@@ -84,7 +89,7 @@ def remove_emojis(data):
 
 
 async def exec(client, all_data):
-    print("exec")
+    flash("Выполняется парсинг", 'success')
     if client is not None:
         sent_messages = []
 
@@ -96,7 +101,7 @@ async def exec(client, all_data):
 
         while True:
             chats = await client.get_dialogs()
-            print("chats ok")
+            flash("Чаты успешно подгружены", 'success')
             for account_id, settings in all_data.items():
                 for chat in chats:
                     for search_title in settings['groups']:
@@ -104,12 +109,10 @@ async def exec(client, all_data):
                         curr_chat_title = remove_emojis(chat.title.lower().strip())
                         if curr_search_title == curr_chat_title:
                             messages = await client.get_messages(entity=chat, limit=100)
-                            print("messages ok")
                             for message in messages:
                                 try:
                                     for word in settings['keywords']:
                                         found_keyword = findWholeWord(word, message.message)
-                                        print(found_keyword)
                                         if found_keyword:
                                             message_text = f"{message.text}\n\n"
                                             message_text += f"Пользователь: <a href='https://t.me/@{message.sender.username}'>{message.sender.username}</a>\nГруппа:"
@@ -127,7 +130,7 @@ async def exec(client, all_data):
                                                 await bot.send_message(chat_id=int(chat_id),
                                                                        text=message_text, parse_mode='HTML')
 
-                                                print("Message sended!")
+                                                flash("Сообщение отправлено", 'success')
                                                 sent_messages.append([f"{search_title}", f"{message.id}"])
                                                 # execute(username=message.sender.username)
                                 except Exception as e:
@@ -135,7 +138,7 @@ async def exec(client, all_data):
 
             await asyncio.sleep(60)
     else:
-        print("No client")
+        flash("Ошибка подключения клиента", 'warning')
 
 
 async def run_bot(login):
@@ -162,8 +165,16 @@ async def run_bot(login):
     client = TelegramClient(session=f'{account.telegram_account.api_id}.session',
                             api_id=account.telegram_account.api_id,
                             api_hash=account.telegram_account.api_hash)
-    await client.connect()
+    string = StringSession.save(client.session)
+    try:
+        await client.connect()
+    except:
+        client = TelegramClient(StringSession(string),
+                                api_id=account.telegram_account.api_id,
+                                api_hash=account.telegram_account.api_hash)
+        await client.connect()
     if not await client.is_user_authorized():
+        flash("Необходима авторизация телеграм аккаунта", 'warning')
         await client.send_code_request(phone=account.telegram_account.phone)
         send_message(account.telegram_account.account_id, "Введите код доступа в формате\n"
                                                           "3 цифры . 2 оставшиеся\n"
@@ -183,8 +194,8 @@ async def run_bot(login):
                 print(password)
                 await client.sign_in(phone=account.telegram_account.phone, code=code, password=password)
             await exec(client, all_data)
+            await client.disconnect()
     else:
-        print("connected")
-        await client.connect()
+        flash("Аккаунт подключен успешно", 'success')
         await exec(client, all_data)
     return
