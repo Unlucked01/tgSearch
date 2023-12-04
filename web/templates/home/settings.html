@@ -14,7 +14,7 @@
                         {% for group in setting.group.split(',') %}
                             <div class="container rule row mb-2" style="padding: 0px 0px 0px 20px">
                                 <div class="col-10 d-flex align-items-center">
-                                    <input class="form-control w-100 pr-0" name="field-value-left" value="{{ group }}">
+                                    <input class="form-control w-100 pr-0" name="field-value-left" value="{{ group.strip() }}">
                                 </div>
                                 <div class="col-2 d-flex align-items-center" style="padding: 0px 0px">
                                     <button type="button" class="btn btn-outline-danger"
@@ -36,7 +36,7 @@
                         {% for key in setting.key.split(',') %}
                             <div class="container rule row mb-2" style="padding: 0px 0px 0px 20px">
                                 <div class="col-10 d-flex align-items-center">
-                                    <input class="form-control w-100 pr-0" name="field-value-right" value="{{ key }}">
+                                    <input class="form-control w-100 pr-0" name="field-value-right" value="{{ key.strip() }}">
                                 </div>
                                 <div class="col-2 d-flex align-items-center" style="padding: 0px 0px">
                                     <button type="button" class="btn btn-outline-danger"
@@ -55,7 +55,9 @@
             </div>
 
             <h3 class="h3 mt-1 pt-4" style=" border-top: 2px solid black; ">Введите id чата Telegram</h3>
-            <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value-telegram" value="{{ v }}">
+            {% for setting in settings %}
+                <input class="form-control mt-0 mb-3 w-100 pr-0 " name="field-value-telegram" value="{{ setting.chat_id }}">
+            {% endfor %}
             <button style="text-align: center" class="btn btn-warning shadow-bttn" type="submit" name="save_changes" id="save_changes">
                 Сохранить
             </button>

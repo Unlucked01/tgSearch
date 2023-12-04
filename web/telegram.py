@@ -21,6 +21,7 @@ from telethon.sync import TelegramClient
 
 dotenv.load_dotenv()
 active_clients = {}
+active_coroutines = {}
 bot = Bot(os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
 os.chdir(sys.path[0])
@@ -31,38 +32,6 @@ UPDATES_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/getUpdates'
 SEND_MESSAGE_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
 
 apiURL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
-
-
-async def create_telegram_client(api_id, api_hash, phone, code='', code_hash='', secret_password=''):
-    global active_clients, client
-    session_name = str(api_id)
-    if session_name in active_clients.keys():
-        client = active_clients[session_name]
-    else:
-        client = TelegramClient(session_name, int(api_id), api_hash)
-        await client.connect()
-        active_clients[session_name] = client
-
-    if session_name in active_clients.keys():
-        client = active_clients[session_name]
-
-    if not await client.is_user_authorized():
-        result = ""
-        if code == '':
-            try:
-                phone_code_hash = await client.send_code_request(phone)
-                result = phone_code_hash.phone_code_hash
-            except Exception as e:
-                print(e)
-            active_clients[client] = client
-            return {'status': False, 'description': 'Please, write sms code',
-                    'variables': {'phone_code_hash': result}}
-        try:
-            await asyncio.create_task(client.sign_in(phone=phone, code=code, phone_code_hash=result))
-        except SessionPasswordNeededError:
-            await asyncio.create_task(client.sign_in(password=secret_password))
-    print(await client.is_user_authorized())
-    return {'status': True, 'description': ''}
 
 
 def remove_emojis(data):
@@ -88,93 +57,112 @@ def remove_emojis(data):
     return re.sub(emoj, '', data)
 
 
+def delete_session_fournaled_file(file_name):
+    os.remove(file_name) if os.path.exists(file_name) else None
+
+
 async def exec(client, all_data):
-    flash("Выполняется парсинг", 'success')
-    if client is not None:
+    if client:
         sent_messages = []
 
-        def findWholeWord(word, text):
-            pattern = r'(^|[^\w]){}([^\w]|$)'.format(word)
-            pattern = re.compile(pattern, re.IGNORECASE)
-            matches = re.search(pattern, text)
+        async def findWholeWord(word, text):
+            pattern = rf'(^|\W){re.escape(word)}($|\W)'
+            matches = re.search(pattern, text, re.IGNORECASE)
             return bool(matches)
 
+        async def send_message_to_telegram(chat_id, text_message):
+            if not ([f"{search_title}", f"{message.id}"] in sent_messages):
+                print("founded message!")
+                if not chat_id.startswith('-'):
+                    chat_id = f'-100{chat_id}'
+                else:
+                    chat_id = f'-100{chat_id[1:]}'
+                print(chat_id)
+                await bot.send_message(chat_id=int(chat_id), text=text_message, parse_mode='HTML')
+                sent_messages.append([f"{search_title}", f"{message.id}"])
+
         while True:
-            chats = await client.get_dialogs()
-            flash("Чаты успешно подгружены", 'success')
-            for account_id, settings in all_data.items():
-                for chat in chats:
-                    for search_title in settings['groups']:
-                        curr_search_title = remove_emojis(search_title.lower().strip())
-                        curr_chat_title = remove_emojis(chat.title.lower().strip())
-                        if curr_search_title == curr_chat_title:
-                            messages = await client.get_messages(entity=chat, limit=100)
-                            for message in messages:
-                                try:
-                                    for word in settings['keywords']:
-                                        found_keyword = findWholeWord(word, message.message)
-                                        if found_keyword:
-                                            message_text = f"{message.text}\n\n"
-                                            message_text += f"Пользователь: <a href='https://t.me/@{message.sender.username}'>{message.sender.username}</a>\nГруппа:"
-                                            message_text += f"<a href='https://t.me/c/{message.peer_id.channel_id}'>{chat.title}</a>\n"
-                                            message_text += f"Ключ: {word}\n"
-                                            message_text += f"<a href='https://t.me/c/{message.peer_id.channel_id}/{message.id}'>Оригинал сообщения</a>"
-                                            if not ([f"{search_title}", f"{message.id}"] in sent_messages):
-                                                print(message_text)
-                                                chat_id = str(settings['chat_id'])
-                                                if chat_id[0] != '-':
-                                                    chat_id = '-100' + chat_id
-                                                else:
-                                                    chat_id = '-100' + chat_id[1:]
-                                                print(chat_id)
-                                                await bot.send_message(chat_id=int(chat_id),
-                                                                       text=message_text, parse_mode='HTML')
-
-                                                flash("Сообщение отправлено", 'success')
-                                                sent_messages.append([f"{search_title}", f"{message.id}"])
-                                                # execute(username=message.sender.username)
-                                except Exception as e:
-                                    print(f"Error processing {chat.title}: {e}")
-
-            await asyncio.sleep(60)
+            try:
+                async with client:
+                    chats = await client.get_dialogs()
+                    for account_id, settings in all_data.items():
+                        for chat in chats:
+                            for search_title in settings['groups']:
+                                curr_search_title = remove_emojis(search_title.lower().strip())
+                                curr_chat_title = remove_emojis(chat.title.lower().strip())
+                                if curr_search_title == curr_chat_title:
+                                    messages = await client.get_messages(entity=chat, limit=100)
+                                    for message in messages:
+                                        try:
+                                            for word in settings['keywords']:
+                                                found_keyword = await findWholeWord(word, message.text)
+                                                if found_keyword:
+                                                    message_text = f"{message.text}\n\n"
+                                                    message_text += f"Пользователь: <a href='https://t.me/@{message.sender.username}'>{message.sender.username}</a>\nГруппа:"
+                                                    message_text += f"<a href='https://t.me/c/{message.peer_id.channel_id}'>{chat.title}</a>\n"
+                                                    message_text += f"Ключ: {word}\n"
+                                                    message_text += f"<a href='https://t.me/c/{message.peer_id.channel_id}/{message.id}'>Оригинал сообщения</a>"
+                                                    await send_message_to_telegram(settings['chat_id'], message_text)
+                                        except Exception as e:
+                                            print(f"Error processing {chat.title}: {e}")
+            except asyncio.CancelledError:
+                break
     else:
-        flash("Ошибка подключения клиента", 'warning')
+        print("Ошибка подключения клиента")
+
+
+def stop_user_coroutine(user_id):
+    task = active_coroutines.get(user_id)
+    if task:
+        task.cancel()
+        del active_coroutines[user_id]
 
 
 async def run_bot(login):
     account = db_session.query(Users).filter_by(email=login).first()
     all_data = {}
+
+    task = asyncio.ensure_future(exec(account, all_data))
+    active_coroutines[account.id] = task
+
     if account:
         list_groups = []
         list_keywords = []
-        chat_id: int
+        chat_id = None
 
         for setting in account.settings:
-            list_groups.append(setting.group)
-            list_keywords.append(setting.key)
+            for group in setting.group.split(','):
+                list_groups.append(group.strip())
+            for key in setting.key.split(','):
+                list_keywords.append(key.strip())
             chat_id = setting.chat_id
 
-        user_data = {'groups': list_groups, 'keywords': list_keywords,
-                     'chat_id': chat_id}
-        all_data[account.id] = user_data
-
-        print(all_data)
+        if chat_id != '':
+            user_data = {'groups': list_groups, 'keywords': list_keywords, 'chat_id': chat_id}
+            all_data[account.id] = user_data
+            print(all_data)
+        else:
+            print("Не заполнено поле chat_id")
     else:
         print("User not found.")
 
     client = TelegramClient(session=f'{account.telegram_account.api_id}.session',
                             api_id=account.telegram_account.api_id,
                             api_hash=account.telegram_account.api_hash)
+
     string = StringSession.save(client.session)
     try:
         await client.connect()
+        print("connected")
     except:
+        print("exception")
         client = TelegramClient(StringSession(string),
                                 api_id=account.telegram_account.api_id,
                                 api_hash=account.telegram_account.api_hash)
         await client.connect()
+        print("connected")
     if not await client.is_user_authorized():
-        flash("Необходима авторизация телеграм аккаунта", 'warning')
+        print("Необходима авторизация телеграм аккаунта")
         await client.send_code_request(phone=account.telegram_account.phone)
         send_message(account.telegram_account.account_id, "Введите код доступа в формате\n"
                                                           "3 цифры . 2 оставшиеся\n"
@@ -196,6 +184,9 @@ async def run_bot(login):
             await exec(client, all_data)
             await client.disconnect()
     else:
-        flash("Аккаунт подключен успешно", 'success')
+        print("Аккаунт подключен успешно")
         await exec(client, all_data)
+
+        await client.disconnect()
+
     return

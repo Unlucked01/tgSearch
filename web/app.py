@@ -11,7 +11,7 @@ import io
 from bot.amocrm import AmoConnect
 from misc.models import dbSession as db_session, Users, TelegramAccounts, AmocrmAccounts, Setting, Session,  \
     add_telegram, add_amo, add_settings
-from web.telegram import create_telegram_client, run_bot
+from web.telegram import run_bot, stop_user_coroutine, delete_session_fournaled_file
 
 from web.utils import login_required
 
@@ -101,6 +101,7 @@ def index_settings():
             add_settings(login, groups=groups, keys=keys, chat_id=chat_id)
             flash("Сохранение произошло успешно", 'success')
         elif 'execute_code' in data:
+            delete_session_fournaled_file(f'{account.telegram_account.api_id}.session-journal')
             asyncio.run(run_bot(login))
     return render_template("home/settings.html", settings=account.settings)
 
